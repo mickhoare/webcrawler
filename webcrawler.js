@@ -8,7 +8,7 @@
         "urlTarget": "https://therecount.github.io/interview-materials/project-a/1.html"
     };
     array[text] results = await webcrawler.test(req);
-    
+
     ------------------------------------------------------------------------------------- */
 const axios = require("axios");
 const cheerio = require("cheerio"); // Jquery Emulator for Node
@@ -24,7 +24,7 @@ module.exports = {
                 retVal = e.message;
             }
             else {
-                retVal = "test().Exception = UNKNOWN...";
+                retVal = "webcrawler.test().Exception = UNKNOWN...";
             }
             console.log(retVal);
         }
@@ -33,9 +33,6 @@ module.exports = {
 }
 
 var webCrawler = {
-    isInitialized: false,
-    counterNumber: 0,
-    _autoSaveOff: false,
     execute: async function (api) {
         api = api || {};
         api.visited = [];
@@ -59,7 +56,7 @@ var webCrawler = {
             for (const link of links) {
                 if (link.attribs && link.attribs.href) {
                     let urlLink = this.urlFromLink(req.url, link.attribs.href);
-                    rec = await this.crawler(urlLink, api);
+                    rec = await this.crawler(urlLink, api);         
                     retVal = retVal.concat(rec);
                 }
             }
@@ -82,7 +79,6 @@ var webCrawler = {
         arrNums = html.match(/[0-9]{3}[-][0-9]{3}[-][0-9]{4}/g);    // Rudimentary US style number match
         if (arrNums) {
             arrNums.forEach((candidate) => {
-                console.log(candidate)
                 retVal.push(candidate);
             });
         }
