@@ -1,3 +1,9 @@
+/*  ------------------------------------------------------------------------------------
+    index.js
+
+    node/express index.js request handler
+    ------------------------------------------------------------------------------------- */
+
 const express = require('express');
 const webcrawler = require('./webcrawler');
 const endPointsString = "0.0.0.0";
@@ -12,5 +18,5 @@ app.get('/webcrawler/test', async function (req, res, next) {
     res.status(200).send(results);
 });
 
-console.log("mh.Api().Start(port{" + port + "}) = OK...");
+console.log("wc.Api().Start(port{" + port + "}) = OK...");
 app.listen(port, endPointsString);

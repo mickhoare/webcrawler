@@ -1,3 +1,15 @@
+
+/*  ------------------------------------------------------------------------------------
+    webcrawler.js
+
+    Usage: 
+    const webcrawler = require('./webcrawler');
+    let req = {
+        "urlTarget": "https://therecount.github.io/interview-materials/project-a/1.html"
+    };
+    array[text] results = await webcrawler.test(req);
+    
+    ------------------------------------------------------------------------------------- */
 const axios = require("axios");
 const cheerio = require("cheerio"); // Jquery Emulator for Node
 
