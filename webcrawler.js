@@ -36,12 +36,13 @@ var webCrawler = {
     execute: async function (api) {
         api = api || {};
         api.visited = [];
+        api.results = [];
         api.req = {
             method: 'get',
             url: api.urlTarget
         };
-        retVal = this.crawler(api.req.url, api);
-
+        return await this.crawler(api.req.url, api);
+        
     },
     crawler: async function (url, api) {
         let retVal = [];
@@ -56,13 +57,12 @@ var webCrawler = {
             for (const link of links) {
                 if (link.attribs && link.attribs.href) {
                     let urlLink = this.urlFromLink(req.url, link.attribs.href);
-                    rec = await this.crawler(urlLink, api);         
-                    retVal = retVal.concat(rec);
+                    await this.crawler(urlLink, api);         
                 }
             }
-            retVal = this.phoneNumsFromHTML(res.data);
+            api.results = api.results.concat(this.phoneNumsFromHTML(res.data));
         }
-        return retVal
+        return api.results
     },
     isVisited: function (url, api) {
         let retVal = false;

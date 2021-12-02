@@ -15,6 +15,7 @@ app.get('/webcrawler/test', async function (req, res, next) {
     let apiRequest = req.body || {};
     apiRequest.urlTarget = req.query.url || "https://therecount.github.io/interview-materials/project-a/1.html";
     let results = await webcrawler.test(apiRequest);
+    console.log(results);
     res.status(200).send(results);
 });
 
