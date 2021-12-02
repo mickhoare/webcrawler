@@ -1,5 +1,5 @@
 const axios = require("axios");
-const cheerio = require("cheerio");
+const cheerio = require("cheerio"); // Jquery Emulator for Node
 
 module.exports = {
     test: async function (apiRequest) {
@@ -9,11 +9,12 @@ module.exports = {
         }
         catch (e) {
             if (e.message) {
-                console.log(e.message);
+                retVal = e.message;
             }
             else {
-                console.log("test().Exception = UNKNOWN...");
+                retVal = "test().Exception = UNKNOWN...";
             }
+            console.log(retVal);
         }
         return retVal;
     },
@@ -37,12 +38,10 @@ var webCrawler = {
         let retVal = [];
         if (!this.isVisited(url, api)) {
             api.visited.push(url);
-            let req = {
-                method: 'get',
-                url: url
-            };
 
+            let req = { method: 'get', url: url};
             let res = await webCrawler.Html(req);
+
             let $ = cheerio.load(res.data);
             let links = $('a');
             for (const link of links) {
@@ -68,7 +67,7 @@ var webCrawler = {
     },
     phoneNumsFromHTML: function (html) {
         retVal = [];
-        arrNums = html.match(/[0-9]{3}[-][0-9]{3}[-][0-9]{4}/g);
+        arrNums = html.match(/[0-9]{3}[-][0-9]{3}[-][0-9]{4}/g);    // Rudimentary US style number match
         if (arrNums) {
             arrNums.forEach((candidate) => {
                 console.log(candidate)
@@ -82,13 +81,13 @@ var webCrawler = {
         var urlReq = new URL(url);
         let origin = urlReq.origin;
         if (href.substring(0, 1) == "/") {
-            return `${origin}${href}`;
+            return `${origin}${href}`;      // Absolute
         }
         else if (href.substring(0, 5) == "http:" || href.substring(0, 6) == "https:") {
-            return href;
+            return href;                    // External
         }
         else {
-            return `${path}${href}`;
+            return `${path}${href}`;        // relative
         }
     },
     Html: async function (req) {
