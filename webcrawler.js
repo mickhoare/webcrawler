@@ -37,32 +37,43 @@ var webCrawler = {
         api = api || {};
         api.visited = [];
         api.results = [];
+        api.errors = [];
         api.req = {
             method: 'get',
             url: api.urlTarget
         };
         return await this.crawler(api.req.url, api);
-        
+
     },
     crawler: async function (url, api) {
         let retVal = [];
         if (!this.isVisited(url, api)) {
             api.visited.push(url);
 
-            let req = { method: 'get', url: url};
-            let res = await webCrawler.Html(req);
+            let req = { method: 'get', url: url };
+            let res = await webCrawler.Html(req, err => {
+                console.log(err);
+                return err;
+            });
+
+            if (res.isAxiosError || res.status != 200) {
+                api.errors.push({ "url": url, err: (res.message ? res.message : "Unknown Error Loading Page") });
+                return retVal;
+            }
 
             let $ = cheerio.load(res.data);
             let links = $('a');
             for (const link of links) {
                 if (link.attribs && link.attribs.href) {
-                    let urlLink = this.urlFromLink(req.url, link.attribs.href);
-                    await this.crawler(urlLink, api);         
+                    let urlLink = this.urlFromLink(req.url, link.attribs.href.trim());
+                    if (urlLink) {
+                        await this.crawler(urlLink, api);
+                    }
                 }
             }
             api.results = api.results.concat(this.phoneNumsFromHTML(res.data));
         }
-        return api.results
+        return api
     },
     isVisited: function (url, api) {
         let retVal = false;
@@ -76,7 +87,7 @@ var webCrawler = {
     },
     phoneNumsFromHTML: function (html) {
         retVal = [];
-        arrNums = html.match(/[0-9]{3}[-][0-9]{3}[-][0-9]{4}/g);    // Rudimentary US style number match
+        arrNums = html.match(/[0-9]{3}[- .]?[0-9]{3}[- .]?[0-9]{4}/g);    // Rudimentary US style number match
         if (arrNums) {
             arrNums.forEach((candidate) => {
                 retVal.push(candidate);
@@ -85,20 +96,27 @@ var webCrawler = {
         return retVal;
     },
     urlFromLink: function (url, href) {
-        let path = url.substring(0, url.lastIndexOf("/") + 1);
-        var urlReq = new URL(url);
-        let origin = urlReq.origin;
-        if (href.substring(0, 1) == "/") {
-            return `${origin}${href}`;      // Absolute
+        let urlReq = new URL(url);
+        let urlLink = new URL(href, url);
+        let verb = urlLink.href.substring(urlLink.href.lastIndexOf("/") + 1) || '';
+        if (urlLink.protocol != urlReq.protocol) {
+            return null;                                    // different protocol (javascript, tel etc..)
         }
-        else if (href.substring(0, 5) == "http:" || href.substring(0, 6) == "https:") {
-            return href;                    // External
+        else if (urlReq.hostname == urlLink.hostname) {     // internal
+            if (verb.startsWith("#")) {
+                return null;                                // Relative within page
+            }
+            return urlLink.href;
         }
         else {
-            return `${path}${href}`;        // relative
+            return null; //urlLink.href;                    // external off for now...
         }
     },
-    Html: async function (req) {
-        return axios(req)
+    Html: async function (req, fnError) {
+        return axios(req).catch(async function (err) {
+            if (fnError) {
+                return fnError(err);
+            }
+        }.bind(this));
     }
 }
