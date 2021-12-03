@@ -7,7 +7,16 @@
     let req = {
         "urlTarget": "https://therecount.github.io/interview-materials/project-a/1.html"
     };
-    array[text] results = await webcrawler.test(req);
+
+    { 
+        req: {
+            method: 'get',
+            url: urlTarget
+        },
+        errors: [],
+        results: [],
+        visited: []
+    }  = await webcrawler.test(req);
 
     ------------------------------------------------------------------------------------- */
 const axios = require("axios");
